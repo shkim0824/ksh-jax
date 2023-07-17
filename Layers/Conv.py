@@ -2,10 +2,11 @@ import jax
 import jax.numpy as jnp
 import flax
 from flax import linen as nn
+import torch
 
 __all__ = [
-  "Conv",
-  "Conv_BatchEnsemble"
+    "Conv",
+    "Conv_BatchEnsemble"
 ]
 
 def normalp1_init():
