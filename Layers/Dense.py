@@ -5,8 +5,8 @@ from flax import linen as nn
 
 __all__ = [
     "Linear",
-  "Linear_Dropout",
-  "Linear_BatchEnsemble"
+    "Linear_Dropout",
+    "Linear_BatchEnsemble"
 ]
 
 
