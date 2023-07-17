@@ -9,6 +9,8 @@ __all__ = [
     "Linear_BatchEnsemble"
 ]
 
+def hi():
+    return
 
 def normalp1_init():
     returned_function = nn.initializers.normal()
