@@ -8,6 +8,17 @@ __all__ = [
   "Linear_BatchEnsemble"
 ]
 
+
+def normalp1_init():
+    returned_function = nn.initializers.normal()
+
+    def add_1(*args, **kwargs):
+        result = returned_function(*args, **kwargs)
+        return result + 1.
+
+    return add_1
+
+
 class Linear(nn.Module):
     features: int
     use_bias: bool = True
@@ -70,8 +81,8 @@ class Linear_BatchEnsemble(nn.Module):
     use_bias: bool = True
     w_init: Callable = jax.nn.initializers.he_normal()
     b_init: Callable = jax.nn.initializers.normal()
-    r_init: Callable = custom_init()
-    s_init: Callable = custom_init()
+    r_init: Callable = normalp1_init()
+    s_init: Callable = normalp1_init()
 
     @nn.compact
     def __call__(self, x, **kwargs):
