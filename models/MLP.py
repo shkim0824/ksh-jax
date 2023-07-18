@@ -2,6 +2,7 @@ import jax
 import jax.numpy as jnp
 import flax
 from flax import linen as nn
+from typing import Any, Sequence
 
 class MLP(nn.Module):
     features: Sequence[int]
