@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from functools import partial
 
-from ksh-jax.data.transform import *
+from data.transform import *
 
 
 def _buildLoader(images, labels, batch_size, steps_per_epoch, rng=None, shuffle=False, transform=None):
@@ -59,6 +59,7 @@ def buildLoader(train_set, test_set, rng, batch_size, test_size=None):
         test_size = len(test_images)
     trn_steps_per_epoch = len(train_images) // batch_size
     tst_steps_per_epoch = len(test_images) // test_size
+    vl_steps_per_epoch = len(val_images) // test_size
 
     trn_loader = partial(_buildLoader,
                             images=train_images,
@@ -71,8 +72,8 @@ def buildLoader(train_set, test_set, rng, batch_size, test_size=None):
     vl_loader = partial(_buildLoader,
                         images=val_images,
                         labels=val_labels,
-                        batch_size=len(val_images),
-                        steps_per_epoch=1,
+                        batch_size=test_size,
+                        steps_per_epoch=vl_steps_per_epoch,
                         shuffle=False,
                         transform=jit(vmap(ToTensorTransform())))
 
