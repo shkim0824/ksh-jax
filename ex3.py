@@ -7,4 +7,4 @@ def f(rng):
   rng, key = jax.random.split(rng, 2)
   x = jax.random.uniform(rng, (10, 10))
   y = jax.random.uniform(key, (10, 10))
-  return evaluate_ace(x, y)
+  return scoring.evaluate_ce(x, y)
