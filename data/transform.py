@@ -30,6 +30,21 @@ class ToTensorTransform(object):
     def __call__(self, rng, image):
         return image / 255.
 
+class ResizeTransform(object):
+    def __init__(self, size=224):
+        """
+        Make image resolution to fit (224, 224, 3) to use in ViT; pre-trained in ImageNet
+        """
+        self.size = size
+    
+    def __call__(self, rng, image):
+        return jax.image.resize(
+                image     = image,
+                shape     = (self.size, self.size, image.shape[2]),
+                method    = jax.image.ResizeMethod.LINEAR,
+                antialias = True,
+            )
+
 class RandomHFlipTransform(object):
     def __init__(self, prob=0.5):
         """
