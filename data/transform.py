@@ -50,7 +50,7 @@ class ResizeTransform(object):
         return jax.image.resize(
                 image     = image,
                 shape     = (self.size, self.size, image.shape[2]),
-                method    = jax.image.ResizeMethod.LINEAR,
+                method    = jax.image.ResizeMethod.LANCZOS3,
                 antialias = True,
         )
 
