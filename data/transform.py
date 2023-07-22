@@ -4,6 +4,8 @@ import jax.numpy as jnp
 __all__ = [
     "TransformChain",
     "ToTensorTransform",
+    "ToTensorNormalizeTransform",
+    "ResizeTransform",
     "RandomHFlipTransform",
     "RandomCropTransform"
 ]
