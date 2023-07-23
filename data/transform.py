@@ -132,14 +132,16 @@ class BrightnessTransform(object):
         return jax.lax.clamp(0., image * jax.random.uniform(rng, shape=(1,), minval=min_bright, maxval=max_bright), 255.)
 
 class ColorJitterTransform(object):
-    def __init__(self, strngth):
+    def __init__(self, strength, prob=0.5):
         """
         Color Jittering of image; Change Hue , Saturation, Lightness (= brightness & contrast)
         pixel values 0. ~ 1. is assumed
         
         Inputs:
             strength (float): determine strength of transform. 0 ~ 1.
+            prob (float): probability of the color jittering
         """
+        self.strength = strength
     
     def __call__(self, rng, image):
         min_strength = 1 - self.strength
