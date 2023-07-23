@@ -142,6 +142,7 @@ class ColorJitterTransform(object):
             prob (float): probability of the color jittering
         """
         self.strength = strength
+        self.prob = prob
     
     def __call__(self, rng, image):
         min_strength = 1 - self.strength
