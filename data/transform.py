@@ -145,24 +145,25 @@ class ColorJitterTransform(object):
         min_strength = 1 - self.strength
         max_strength = 1 + self.strength
         
+        rng, *keys = random.split(rng, 6)
+        
         # Brightness
-        img_jt = image * random.uniform(rngs[1], shape=(1,), minval=min_strength, maxval=max_strength)  # Brightness
+        img_jt = image * random.uniform(keys[0], shape=(1,), minval=min_strength, maxval=max_strength)  # Brightness
         img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
         
         # Contrast
-        img_jt = dm_pix.random_contrast(rngs[2], img_jt, lower=min_strength, upper=max_strength)
+        img_jt = dm_pix.random_contrast(keys[1], img_jt, lower=min_strength, upper=max_strength)
         img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
         
         # Saturation
-        img_jt = dm_pix.random_saturation(rngs[3], img_jt, lower=min_strength, upper=max_strength)
+        img_jt = dm_pix.random_saturation(keys[2], img_jt, lower=min_strength, upper=max_strength)
         img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
         
         # Hue
-        img_jt = dm_pix.random_hue(rngs[4], img_jt, max_delta=0.1)
+        img_jt = dm_pix.random_hue(keys[3], img_jt, max_delta=0.1)
         img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
         
         # Prob of color jitter
-        should_jt = random.bernoulli(rngs[5], self.prob)
-        return jnp.where(random.bernoulli(rng, self.prob),
+        return jnp.where(random.bernoulli(keys[4], self.prob),
                          img_jt,
                          image)
