@@ -147,10 +147,10 @@ class ColorJitterTransform(object):
         min_strength = 1 - self.strength
         max_strength = 1 + self.strength
         
-        rng, *keys = random.split(rng, 6)
+        rng, *keys = jax.random.split(rng, 6)
         
         # Brightness
-        img_jt = image * random.uniform(keys[0], shape=(1,), minval=min_strength, maxval=max_strength)  # Brightness
+        img_jt = image * jax.random.uniform(keys[0], shape=(1,), minval=min_strength, maxval=max_strength)  # Brightness
         img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
         
         # Contrast
@@ -166,6 +166,6 @@ class ColorJitterTransform(object):
         img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
         
         # Prob of color jitter
-        return jnp.where(random.bernoulli(keys[4], self.prob),
+        return jnp.where(jax.random.bernoulli(keys[4], self.prob),
                          img_jt,
                          image)
