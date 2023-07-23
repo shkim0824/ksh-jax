@@ -1,11 +1,15 @@
 import jax
 import jax.numpy as jnp
+import dm_pix
 
 __all__ = [
     "TransformChain",
     "ToTensorTransform",
+    "NormalizeTransform",
+    "ResizeTransform",
     "RandomHFlipTransform",
-    "RandomCropTransform"
+    "RandomCropTransform",
+    "ColorJitterTransform"
 ]
 
 
@@ -29,20 +33,23 @@ class ToTensorTransform(object):
 
     def __call__(self, rng, image):
         return image / 255.
-    
-class ToTensorNormalizeTransform(object):
+
+class NormalizeTransform(object):
     def __init__(self):
         """
         Substract 0.5, divide 0.5; general normalization
         """
     
     def __call__(self, rng, image):
-        return ((image/255.) - 0.5 ) / 0.5
+        return (image - 0.5 ) / 0.5
 
 class ResizeTransform(object):
     def __init__(self, size=224):
         """
         Make image resolution to fit (224, 224, 3) to use in ViT; pre-trained in ImageNet
+        
+        Inputs:
+            size (int): desired size of output image
         """
         self.size = size
     
@@ -50,7 +57,7 @@ class ResizeTransform(object):
         return jax.image.resize(
                 image     = image,
                 shape     = (self.size, self.size, image.shape[2]),
-                method    = jax.image.ResizeMethod.LINEAR,
+                method    = jax.image.ResizeMethod.LANCZOS3,
                 antialias = True,
         )
 
@@ -76,6 +83,7 @@ class RandomCropTransform(object):
     def __init__(self, size, padding):
         """
         Crop the image at a random location with given size and padding.
+        
         Inputs:
             size (int): desired output size of the crop.
             padding (int): padding on each border of the image before cropping.
@@ -107,3 +115,54 @@ class RandomCropTransform(object):
         )
 
         return image
+
+class BrightnessTransform(object):
+    def __init__(self, strength):
+        """
+        Change Brightness of image; pixel values 0 ~ 255 is assumed.
+        
+        Inputs:
+            strength (float): determine strength of transform. 0 ~ 1.
+        """
+        self.strength = strength
+        
+    def __call__(self, rng, image):
+        min_bright = 1 - self.strength
+        max_bright = 1 + self.strength
+        return jax.lax.clamp(0., image * jax.random.uniform(rng, shape=(1,), minval=min_bright, maxval=max_bright), 255.)
+
+class ColorJitterTransform(object):
+    def __init__(self, strngth):
+        """
+        Color Jittering of image; Change Hue , Saturation, Lightness (= brightness & contrast)
+        pixel values 0. ~ 1. is assumed
+        
+        Inputs:
+            strength (float): determine strength of transform. 0 ~ 1.
+        """
+    
+    def __call__(self, rng, image):
+        min_strength = 1 - self.strength
+        max_strength = 1 + self.strength
+        
+        # Brightness
+        img_jt = image * random.uniform(rngs[1], shape=(1,), minval=min_strength, maxval=max_strength)  # Brightness
+        img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
+        
+        # Contrast
+        img_jt = dm_pix.random_contrast(rngs[2], img_jt, lower=min_strength, upper=max_strength)
+        img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
+        
+        # Saturation
+        img_jt = dm_pix.random_saturation(rngs[3], img_jt, lower=min_strength, upper=max_strength)
+        img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
+        
+        # Hue
+        img_jt = dm_pix.random_hue(rngs[4], img_jt, max_delta=0.1)
+        img_jt = jax.lax.clamp(0.0, img_jt, 1.0)
+        
+        # Prob of color jitter
+        should_jt = random.bernoulli(rngs[5], self.prob)
+        return jnp.where(random.bernoulli(rng, self.prob),
+                         img_jt,
+                         image)
