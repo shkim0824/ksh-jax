@@ -9,6 +9,8 @@ __all__ = [
     "ResizeTransform",
     "RandomHFlipTransform",
     "RandomCropTransform",
+    "RandomCropScaleTransform",
+    "BrightnessTransform",
     "ColorJitterTransform"
 ]
 
@@ -115,6 +117,43 @@ class RandomCropTransform(object):
         )
 
         return image
+
+class RandomCropScaleTransform(object):
+
+    def __init__(self, size, scale=0.9):
+        """
+        Crop the image at a random location with given size and padding.
+        
+        Inputs:
+            size (int): desired output size of the crop.
+            scale (float): desired scaling of input. float between 0.08 and 1.0
+        """
+        self.size = size
+        self.scale = scale
+
+    def __call__(self, rng, image):
+        # Random cropping position
+        h, w = image.shape[0], image.shape[1] # original resolution
+        new_h = int(h * self.scale)
+        new_w = int(w * self.scale)
+        
+        rng1, rng2 = jax.random.split(rng, 2)
+        h0 = jax.random.randint(rng1, shape=(1,), minval=0, maxval=h-new_h+1)[0] # output of randint is [x]. We get item of x
+        w0 = jax.random.randint(rng2, shape=(1,), minval=0, maxval=w-new_w+1)[0]
+
+        # Slice image
+        new_image = jax.lax.dynamic_slice(
+            operand       = image,
+            start_indices = (h0, w0, 0), # We do not crop rgb channel
+            slice_sizes   = (new_h, new_w, image.shape[2]), # We do not crop rgb channel
+        )
+        
+        return jax.image.resize(
+                image     = new_image,
+                shape     = (self.size, self.size, image.shape[2]),
+                method    = jax.image.ResizeMethod.LINEAR,
+                antialias = True,
+        )
 
 class BrightnessTransform(object):
     def __init__(self, strength):
