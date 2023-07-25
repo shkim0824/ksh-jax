@@ -10,6 +10,7 @@ __all__ = [
     "RandomHFlipTransform",
     "RandomCropTransform",
     "RandomCropScaleTransform",
+    "CutoutTransform",
     "BrightnessTransform",
     "ColorJitterTransform"
 ]
@@ -154,7 +155,35 @@ class RandomCropScaleTransform(object):
                 method    = jax.image.ResizeMethod.LINEAR,
                 antialias = True,
         )
-
+class CutoutTransform(object):
+    def __init__(self, patch_size, prob=0.5):
+        """
+        Cutout the image of given patch size
+        
+        Inputs
+            patch_size (int): cut out patch isze
+            prob (float): probability of cut out
+        """
+        self.patch_size = patch_size
+        self.prob = prob
+    
+    def __call__(self, rng, image):
+        h, w, c = image.shape[0], image.shape[1], image.shape[2] # original resolution
+        mask = jnp.ones((h, w, c), dtype=jnp.float32)
+        
+        # random coordinates to cutout
+        keys = jax.random.split(rng, 3)
+        h0 = jax.random.randint(keys[0], shape=(1,), minval=0, maxval=h-self.patch_size)[0] # output of randint is [x]. We get item of x
+        w0 = jax.random.randint(keys[1], shape=(1,), minval=0, maxval=w-self.patch_size)[0]
+        
+        # cutout image
+        mask = jax.lax.dynamic_update_slice(mask, jnp.zeros((self.patch_size, self.patch_size, c), dtype=jnp.float32), (h0, w0, c))
+        img_cutout = image * mask
+        
+        return jnp.where(jax.random.bernoulli(keys[2], self.prob),
+                         img_cutout,
+                         image)
+        
 class BrightnessTransform(object):
     def __init__(self, strength):
         """
