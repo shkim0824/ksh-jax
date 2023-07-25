@@ -25,7 +25,8 @@ class TransformChain(object):
 
     def __call__(self, rng, image):
         for _t in self.transforms:
-            image = _t(rng, image)
+            rng, key = jax.random.split(rng, 2)
+            image = _t(key, image)
         return image
 
 class ToTensorTransform(object):
