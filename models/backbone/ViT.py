@@ -7,6 +7,9 @@ from flax import linen as nn
 import transformers
 from transformers.modeling_flax_outputs import *
 
+ACT2FN = {"gelu": nn.activation.gelu}
+
+
 class ViTConfig():
     """
     configuration class to store the configuration of 'ViTModel'
@@ -153,7 +156,7 @@ class ViTModule(nn.Module):
             last_hidden_state = hidden_states,
             pooler_output = pooled,
             hidden_states = outputs.hidden_states,
-            attentions = output.attentions
+            attentions = outputs.attentions
         )
 
 class ViTEncoder(nn.Module):
@@ -211,7 +214,7 @@ class ViTLayerCollection(nn.Module):
             
             hidden_states = layer_outputs[0] # layer output is (hidden_states, attention)
             
-            if output_atentions:
+            if output_attentions:
                 all_attentions += (layer_outputs[1], )
         
         if output_hidden_states:
@@ -234,7 +237,7 @@ class ViTLayer(nn.Module):
     
     def setup(self):
         self.attention = ViTAttention(self.config) # Multi-head attention
-        self.intermediate = ViTIntermediate(self.confige) # First MLP layer
+        self.intermediate = ViTIntermediate(self.config) # First MLP layer
         self.output = ViTOutput(self.config) # Second MLP layer
         self.layernorm_before = nn.LayerNorm(epsilon=self.config.layer_norm_eps) # Layer norm before MHSA
         self.layernorm_after = nn.LayerNorm(epsilon=self.config.layer_norm_eps) # layer norm before MLP
@@ -250,7 +253,7 @@ class ViTLayer(nn.Module):
         attention_output = attention_outputs[0]
         
         # first residual connection
-        attention_output = attention_utput + hidden_states
+        attention_output = attention_output + hidden_states
         
         # MLP
         layer_output = self.layernorm_after(attention_output)
@@ -400,6 +403,8 @@ class ViTOutput(nn.Module):
     
     Itself contains residual connection
     """
+    config: ViTConfig
+        
     def setup(self):
         self.dense = nn.Dense(
             self.config.hidden_size,
@@ -434,11 +439,13 @@ class ViTPooler(nn.Module):
             self.config.hidden_size,
             kernel_init=jax.nn.initializers.variance_scaling(
                 self.config.initializer_range**2, "fan_in", "truncated_normal"
-            ),
-            dtype=self.dtype,
+            )
         )
 
     def __call__(self, hidden_states):
+        cls_hidden_state = hidden_states[:, 0]
+        cls_hidden_state = self.dense(cls_hidden_state)
+        return nn.tanh(cls_hidden_state)
         cls_hidden_state = hidden_states[:, 0]
         cls_hidden_state = self.dense(cls_hidden_state)
         return nn.tanh(cls_hidden_state)
