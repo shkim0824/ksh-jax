@@ -1,0 +1,57 @@
+Metadata-Version: 2.1
+Name: clu
+Version: 0.0.8
+Summary: Set of libraries for ML training loops in JAX.
+Home-page: http://github.com/google/CommonLoopUtils
+Author: Common Loop Utils Authors
+Author-email: no-reply@google.com
+License: Apache 2.0
+Keywords: JAX machine learning
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: AUTHORS
+Requires-Dist: absl-py
+Requires-Dist: etils[epath]
+Requires-Dist: flax
+Requires-Dist: jax
+Requires-Dist: jaxlib
+Requires-Dist: ml-collections
+Requires-Dist: numpy
+Requires-Dist: packaging
+Requires-Dist: typing-extensions
+Requires-Dist: wrapt
+Provides-Extra: pytorch
+Requires-Dist: torch (>=1.2.0) ; extra == 'pytorch'
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: tensorflow ; extra == 'test'
+Requires-Dist: tensorflow-datasets ; extra == 'test'
+Requires-Dist: torch (>=1.2.0) ; extra == 'test'
+
+# CLU - Common Loop Utils
+
+This repository contains common functionality for writing ML training loops. The
+goal is to make trainings loops short and readable (but moving common tasks to
+small libraries) without removing the flexibility required for research.
+
+To get started, check out this Colab:
+
+https://colab.research.google.com/github/google/CommonLoopUtils/blob/master/clu_synopsis.ipynb
+
+If you're looking for usage examples, see:
+
+https://github.com/google/flax/tree/master/examples
+
+You can also find answers to common questions about CLU on Flax Github
+discussions page:
+
+https://github.com/google/flax/discussions
+
+Note: As this point we are not accepting contributions. Please fork the
+repository if you want to extend the libraries for your use case.

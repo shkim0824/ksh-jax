@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: aqtp
+Version: 0.0.10
+Summary: AQT: Accurate Quantized Training
+Home-page: https://github.com/google/aqt
+Author: Cerebra Catalyst team
+Author-email: cerebra-catalyst-team@google.com
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: jax_legacy
+Requires-Dist: numpy (>=1.16.4) ; extra == 'jax_legacy'
+Requires-Dist: jax (>=0.3.4) ; extra == 'jax_legacy'
+Requires-Dist: flax (>=0.4.1) ; extra == 'jax_legacy'
+Requires-Dist: tensorflow (>=2.3.1) ; extra == 'jax_legacy'
+Requires-Dist: tensorflow-datasets (>=4.5.2) ; extra == 'jax_legacy'
+Requires-Dist: dacite (>=1.6.0) ; extra == 'jax_legacy'
+Requires-Dist: ml-collections (>=0.1.1) ; extra == 'jax_legacy'
+
+# AQTp : Accurate Quantized Training for production.
+
